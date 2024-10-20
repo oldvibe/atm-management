@@ -19,33 +19,33 @@ void mainMenu(struct User u)
     switch (option)
     {
     case 1:
-        createNewAcc(u);
+        //createNewAcc(u);
         break;
     case 2:
         // student TODO : add your **Update account information** function
-        updateAccount(u);
+       // updateAccount(u);
         // here
         break;
     case 3:
         // student TODO : add your **Check the details of existing accounts** function
-        checkAccountInfo(u);
+        //checkAccountInfo(u);
         // here
         break;
     case 4:
-        checkAllAccounts(u);
+        //checkAllAccounts(u);
         break;
     case 5:
-        makeTransaction(u);
+        //makeTransaction(u);
         // student TODO : add your **Make transaction** function
         // here
         break;
     case 6:
-        removeAccount(u);
+        //removeAccount(u);
         // student TODO : add your **Remove existing account** function
         // here
         break;
     case 7:
-        transferOwner(u);
+        //transferOwner(u);
         // student TODO : add your **Transfer owner** function
         // here
         break;
@@ -53,7 +53,8 @@ void mainMenu(struct User u)
         exit(1);
         break;
     default:
-        printf("Invalid operation!\n");
+            printf("\nInvalid choice.\n");
+            mainMenu(u);
     }
 };
 
@@ -73,22 +74,10 @@ void initMenu(struct User *u)
         switch (option)
         {
         case 1:
-            loginMenu(u->name, u->password);
-            if (strcmp(u->password, getPassword(*u)) == 0)
-            {
-                printf("\n\nPassword Match!");
-            }
-            else
-            {
-                printf("\n\n\t\t\t Invalid password or user name");
-            }
+            login();
             r = 1;
             break;
         case 2:
-            printf("\nEnter username: ");
-            scanf("%s", u->name);
-            printf("\nEnter password: ");
-            scanf("%s", u->password);
             registerMenu(u->name, u->password);
             r = 1;
             break;

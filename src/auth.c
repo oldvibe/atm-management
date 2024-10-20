@@ -6,10 +6,11 @@ char *USERS = "./data/users.txt";
 void loginMenu(char *a, char *pass)
 {
     system("clear");
-    printf("\n\n\n\n\n\t\t\t\tEnter the password to login:");
+    printf("\n\n\n\n\n\t\t\t\tEnter the username login:");
     scanf("%s", a);
     printf("\n\n\n\t\t\tEnter your password:");
     scanf("%s", pass);
+    
 };
 
 const char *getPassword(struct User u)

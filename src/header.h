@@ -27,11 +27,14 @@ struct User
     int id;
     char name[50];
     char password[50];
+    char confirmPassword[50];
 };
+
+void putAccountToFile(FILE *ptr, const char *name, struct Record r);
 
 // authentication functions
 void loginMenu(char *a, char *pass);
-void registerMenu(char *a, char *password);
+void registerMenu();
 //get the information of the new user (the username must be unique)
 
 const char *getPassword(struct User u);
@@ -39,6 +42,7 @@ const char *getPassword(struct User u);
 // system function
 void createNewAcc(struct User u);
 void mainMenu(struct User u);
+
 
 //this function dosn't work, it must print the informations of 
 //all the account that appear under the user (use the username to check) 
@@ -81,3 +85,9 @@ void removeAccount(struct User u);
 // is already in our file (users.txt) recreate the record file 
 //but this specific file with the new username and new user id
 void transferOwner(struct User u);
+
+int generateAccountNumber();
+int validatePhoneNumber(const char* phone);
+double getValidAmount(double amount);
+const int GetUserId();
+const int GetRecordId();
