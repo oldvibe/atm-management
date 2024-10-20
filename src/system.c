@@ -99,6 +99,7 @@ void stayOrReturn(int notGood, void f(struct User u), struct User u)
 
 //##############################################################################################################################################################
 void registerMenu() {
+    system("clear");
     FILE *fp;
     struct User newUser;
     char password[50];
@@ -107,7 +108,12 @@ void registerMenu() {
 
     do {
         printf("\n\t\tEnter your username (max 49 characters): ");
-        scanf("%49s", newUser.name);
+        scanf("%51s", &newUser.name);
+        if (strlen(newUser.name) > 50) {
+            printf("\nUsername is too long. Please try again.\n");
+            registerMenu();
+            return;
+        }
         fp = fopen("./data/users.txt", "r");
         if (fp == NULL) {
             printf("Error opening file\n");
@@ -126,20 +132,16 @@ void registerMenu() {
 
         if (found) {
             printf("\nUsername already exists. Please choose another.\n");
-        } else if (strlen(newUser.name) > 49) {
-        printf("\nUsername is too long. Please try again.\n");
-        registerMenu();
-        return;
         } else {
             break;
         }
     } while (1);
 
     printf("\n\t\tEnter your password (max 49 characters): ");
-    scanf("%49s", newUser.password);
+    scanf("%s", newUser.password);
 
     printf("\n\t\tConfirm your password: ");
-    scanf("%49s", newUser.confirmPassword);
+    scanf("%s", newUser.confirmPassword);
     
     if (strcmp(newUser.password, newUser.confirmPassword) != 0) {
         printf("\nPasswords do not match. Please try again.\n");
@@ -204,17 +206,17 @@ int generateAccountNumber() {
 
 
 //##############################################################################################################################################################
-double getValidAmount(double amount) {
-    char input[100];
-    while (1) {
-        printf("\nEnter amount: $");
-        scanf("%s", input);
-        if (sscanf(input, "%le", &amount) == 1 && amount > 0) {
-            return amount;
-        }
-        printf("Invalid input. Please enter a positive number.\n");
-    }
-}
+// double getValidAmount(double amount) {
+//     char input[100];
+//     while (1) {
+//         printf("\nEnter amount: $");
+//         scanf("%s", input);
+//         if (sscanf(input, "%le", &amount) == 1 && amount > 0) {
+//             return amount;
+//         }
+//         printf("Invalid input. Please enter a positive number.\n");
+//     }
+// }
 
 //##############################################################################################################################################################
 int getLastAccountId() {
@@ -237,7 +239,7 @@ int getLastAccountId() {
     }
 
     fclose(fp);
-    return lastId;
+    return lastId + 1;
 }
 //##############################################################################################################################################################
 int getLastUserId() {
