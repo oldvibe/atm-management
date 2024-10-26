@@ -19,7 +19,8 @@ void mainMenu(struct User u)
     switch (option)
     {
     case 1:
-        //createNewAcc(u);
+       system("clear");
+        createNewAcc(u);
         break;
     case 2:
         // student TODO : add your **Update account information** function
@@ -32,7 +33,8 @@ void mainMenu(struct User u)
         // here
         break;
     case 4:
-        //checkAllAccounts(u);
+    system("clear");
+        checkAllAccounts(u);
         break;
     case 5:
         //makeTransaction(u);
@@ -74,10 +76,11 @@ void initMenu(struct User *u)
         switch (option)
         {
         case 1:
-            login();
+            login(u->name, u->password);
             r = 1;
             break;
         case 2:
+            system("clear");
             registerMenu(u->name, u->password);
             r = 1;
             break;
@@ -86,6 +89,7 @@ void initMenu(struct User *u)
             break;
         default:
             printf("Insert a valid operation!\n");
+            exit(0);
         }
     }
 };

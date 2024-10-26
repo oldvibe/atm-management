@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct Date
 {
@@ -33,7 +34,7 @@ struct User
 void putAccountToFile(FILE *ptr, const char *name, struct Record r);
 
 // authentication functions
-void loginMenu(char *a, char *pass);
+void login(char *a, char *pass);
 void registerMenu();
 //get the information of the new user (the username must be unique)
 
@@ -42,6 +43,7 @@ const char *getPassword(struct User u);
 // system function
 void createNewAcc(struct User u);
 void mainMenu(struct User u);
+void initMenu(struct User *u);
 
 
 //this function dosn't work, it must print the informations of 
@@ -87,7 +89,9 @@ void removeAccount(struct User u);
 void transferOwner(struct User u);
 
 int generateAccountNumber();
-int validatePhoneNumber(const char* phone);
+int IsDigit(const char* phone);
 double getValidAmount(double amount);
 const int GetUserId();
 const int GetRecordId();
+bool IsPrintableName(char *str);
+bool IsPrintablePassword(char *str);

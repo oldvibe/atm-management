@@ -1,8 +1,6 @@
 #include "header.h"
 #include "stdbool.h"
 #include "ctype.h"
-//#include <sqlite3.h>
-#define MAX_LINE 256
 
 const char *RECORDS = "./data/records.txt";
 const char *USER = "./data/user.txt";
@@ -20,7 +18,7 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r)
                   r->country,
                   &r->phone,
                   &r->amount,
-                  r->accountType) == 11; 
+                  r->accountType) == EOF; 
 }
 
 //##############################################################################################################################################################
@@ -99,20 +97,19 @@ void stayOrReturn(int notGood, void f(struct User u), struct User u)
 
 //##############################################################################################################################################################
 void registerMenu() {
-    system("clear");
     FILE *fp;
     struct User newUser;
-    char password[50];
+    char password;
 
     printf("\n\t\t\t===== Register =====\n");
 
     do {
-        printf("\n\t\tEnter your username (max 49 characters): ");
-        scanf("%51s", &newUser.name);
-        if (strlen(newUser.name) > 50) {
+        printf("\n\t\tEnteur ur username (max 49 characters): ");
+        scanf("%s", newUser.name);
+        if (strlen(newUser.name) > 49) {
             printf("\nUsername is too long. Please try again.\n");
-            registerMenu();
-            return;
+            //system("clear");
+            continue;
         }
         fp = fopen("./data/users.txt", "r");
         if (fp == NULL) {
@@ -126,30 +123,42 @@ void registerMenu() {
             if (strcmp(newUser.name, tempUser.name) == 0) {
                 found = 1;
                 break;
+            } else if (!IsPrintableName(newUser.name)){
+                found = 2;
             }
         }
         fclose(fp);
 
-        if (found) {
+        if (found == 1) {
             printf("\nUsername already exists. Please choose another.\n");
+        } else if (found == 2){
+            printf("Username invalid cause countains inprintibale character");
         } else {
             break;
         }
     } while (1);
 
-    printf("\n\t\tEnter your password (max 49 characters): ");
-    scanf("%s", newUser.password);
+    do {
+        printf("\n\t\tEnter your password (max 49 characters): ");
+        scanf("%s", newUser.password);
+        if (strlen(newUser.password) > 49) {
+            system("clear");
+            printf("\nPassword is too long. Please try again.\n");
+            registerMenu();
+        } 
+        printf("\n\t\tConfirm your password: ");
+        scanf("%s", newUser.confirmPassword);
+        
+        if (strcmp(newUser.password, newUser.confirmPassword) != 0) {
+            printf("\nPasswords do not match. Please try again.\n");
+            registerMenu();
+            return;
+        } else {
+            break;
+        }
+    } while (1);
 
-    printf("\n\t\tConfirm your password: ");
-    scanf("%s", newUser.confirmPassword);
-    
-    if (strcmp(newUser.password, newUser.confirmPassword) != 0) {
-        printf("\nPasswords do not match. Please try again.\n");
-        registerMenu();
-        return;
-    }
-
-    newUser.id = getLastUserId();  
+    newUser.id = GetUserId();  
 
     fp = fopen("./data/users.txt", "a");
     if (fp == NULL) {
@@ -158,40 +167,58 @@ void registerMenu() {
     }
     fprintf(fp, "%d %s %s\n", newUser.id, newUser.name, newUser.password);
     fclose(fp);
-
+    system("clear");
     printf("\nRegistration successful!\n");
     stayOrReturn(1, mainMenu, newUser);
 }
 
 //##############################################################################################################################################################
 
-int login(char *username, char *password) {
-    FILE *file = fopen("data/users.txt", "r");
-    if (file == NULL) {
-        printf("Error opening file!\n");
-        return -1;
-    }
+void login(char *username, char *password) {
+     FILE *fp;
+     int found = 0;
+    do {
+        system("clear");
+        printf("\n\n\t\t Bank Management System\n");
+        printf("\n\t\t Username: ");
+        scanf("%s", username);
+        printf("\t\t Password: ");
+        scanf("%s", password);
 
-    char line[MAX_LINE];
-    struct User user;
-
-    while (fgets(line, sizeof(line), file)) {
-        sscanf(line, "%d %s %s", &user.id, user.name, user.password);
-        if (strcmp(username, user.name) == 0 && strcmp(password, user.password) == 0) {
-            fclose(file);
-            return user.id;
+        fp = fopen("./data/users.txt", "r");
+        if (fp == NULL) {
+            printf("\n\t\t Cannot open users file!\n");
+            exit(1);
         }
-    }
+        struct User tempUser;
 
-    fclose(file);
-    return -1;  
+        while (fscanf(fp, "%d %s %s", &tempUser.id, tempUser.name, tempUser.password) != EOF) {
+            if (strcmp(tempUser.name, username) == 0 && strcmp(tempUser.password, password) == 0) {
+                found = 1;
+                break;
+            }
+        }
+        fclose(fp);
+
+        if (found) {
+            printf("\n\t\t Login successful!\n");
+            mainMenu(tempUser);
+            return;
+        } else {
+            printf("\n\t\t Wrong username or password!\n");
+            printf("\n\t\t Press Enter to try again...");
+            getchar();
+            getchar();
+        }
+         
+    } while (!found);
 }
 
 //##############################################################################################################################################################
-int validatePhoneNumber(const char* phone) {
+int IsDigit(const char *valid) {
     int i;
-    for (i = 0; phone[i] != '\0'; i++) {
-        if (!isdigit(phone[i])) {
+    for (i = 0; valid[i] != '\0'; i++) {
+        if (!isdigit(valid[i])) {
             return 0;
         }
     }
@@ -200,7 +227,7 @@ int validatePhoneNumber(const char* phone) {
 
 //##############################################################################################################################################################
 int generateAccountNumber() {
-    static int accountNumber = 1000000001;
+    static int accountNumber = 101;
     return ++accountNumber;
 }
 
@@ -242,7 +269,7 @@ int getLastAccountId() {
     return lastId + 1;
 }
 //##############################################################################################################################################################
-int getLastUserId() {
+int GetUserId() {
     FILE *fp = fopen("./data/users.txt", "r");
     if (fp == NULL) {
         printf("Error opening file\n");
@@ -262,14 +289,164 @@ int getLastUserId() {
     return lastId + 1;
 }
 
-//##############################################################################################################################################################
-void createNewAcc(struct User u);
+//################################################################################################################################################
+bool IsPrintableName(char *str) {
+    int i = 0;
+    while (str[i]) {
+        if (!((str[i] >= 32 && str[i] <= 126) || str[i] == '\n')) {
+            return false;
+        }
+        i++;
+    }
+    return true;
+}
+
+//################################################################################################################################################
+bool isValidAccountType(const char* type) {
+    return (strcmp(type, "saving") == 0 || strcmp(type, "current") == 0 ||
+            strcmp(type, "fixed01") == 0 || strcmp(type, "fixed02") == 0 ||
+            strcmp(type, "fixed03") == 0);
+}
+
+//################################################################################################################################################
+bool isValidDate(int day, int month, int year) {
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+    
+    int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+        daysInMonth[1] = 29;
+    }
+    
+    return day <= daysInMonth[month - 1];
+}
+
+//################################################################################################################################################
+// bool IsPrintablePassword(char *str) {
+//     int i = 0;
+//     while (str[i]) {
+//         if (!(str[i] >= 32 && str[i] <= 126)) {
+//             return false;
+//         }
+//         i++;
+//     }
+//     return true;
+// }
 
 //##############################################################################################################################################################
-void mainMenu(struct User u);
+void createNewAcc(struct User u) {
+    struct Record newAccount;
+    FILE *fp;
+    char phoneStr[11];
+    bool isValid;
+
+    do {
+        system("clear");
+        printf("\t\t\t\tCreating new account:\n");
+        
+        newAccount.id = getLastAccountId();
+        newAccount.userId = u.id;
+        strcpy(newAccount.name, u.name);
+        newAccount.accountNbr = generateAccountNumber();
+        isValid = true;
+
+        printf("\nEnter the country: ");
+        scanf("%s", newAccount.country);
+        if (strlen(newAccount.country) > 99 || strlen(newAccount.country) < 2 || 
+            IsDigit(newAccount.country) || !IsPrintableName(newAccount.country)) {
+            printf("\nInvalid country name. Country should be 2-99 characters and contain only letters.\n");
+            isValid = false;
+            continue;
+        }
+
+        printf("\nEnter the phone number: ");
+        scanf("%d", &newAccount.phone);
+        snprintf(phoneStr, sizeof(phoneStr), "%d", newAccount.phone);
+        if (newAccount.phone < 100000000 || newAccount.phone > 999999999 || !IsDigit(phoneStr)) {
+            printf("\nInvalid phone number. Please enter a 9-digit number.\n");
+            isValid = false;
+            continue;
+        }
+
+        printf("\nEnter the amount to deposit: ");
+        if (scanf("%lf", &newAccount.amount) != 1 || newAccount.amount < 0) {
+            printf("\nInvalid amount. Please enter a positive number.\n");
+            while (getchar() != '\n');
+            isValid = false;
+            continue;
+        }
+
+        printf("\nEnter the type of account : \n\t\t\t=====>saving\n\t\t\t=====>current\n\t\t\t=====>fixed01\n\t\t\t=====>fixed02\n\t\t\t=====>fixed03\n=================>\t  ");
+        scanf("%9s", newAccount.accountType);
+        if (!isValidAccountType(newAccount.accountType)) {
+            printf("\nInvalid account type. Please choose from the given options.\n");
+            isValid = false;
+            continue;
+        }
+
+        printf("\nEnter today's date (dd/mm/yyyy): ");
+        if (scanf("%d/%d/%d", &newAccount.deposit.day, &newAccount.deposit.month, &newAccount.deposit.year) != 3 ||
+            !isValidDate(newAccount.deposit.day, newAccount.deposit.month, newAccount.deposit.year)) {
+            printf("\nInvalid date format or date. Please use dd/mm/yyyy format.\n");
+            while (getchar() != '\n');
+            isValid = false;
+            continue;
+        }
+
+        if (isValid) break;
+    } while (1);
+
+    fp = fopen("./data/records.txt", "a");
+    if (fp == NULL) {
+        printf("Error opening file. Please try again later.\n");
+        stayOrReturn(1, mainMenu, u);
+        return;
+    }
+
+    putAccountToFile(fp, newAccount.name, newAccount);
+    // fprintf(fp, "%d %d %s %d %02d/%02d/%d %s %d %.2f %s\n",
+    //         newAccount.id, newAccount.userId, newAccount.name, newAccount.accountNbr,
+    //         newAccount.deposit.day, newAccount.deposit.month, newAccount.deposit.year,
+    //         newAccount.country, newAccount.phone, newAccount.amount, newAccount.accountType);
+    fclose(fp);
+
+    printf("\nAccount created successfully!\n");
+    stayOrReturn(1, mainMenu, u);
+}
+//##############################################################################################################################################################
 
 //##############################################################################################################################################################
-void checkAllAccounts(struct User u);
+void checkAllAccounts(struct User u)
+{
+    struct Record r;
+    FILE *pf = fopen(RECORDS, "r");
+    if (pf == NULL) {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    system("clear");
+    printf("\t\t====== All accounts from user, %s =====\n\n", u.name);
+    int found = 0;
+    while (getAccountFromFile(pf, u.name, &r)) {
+        if (strcmp(r.name, u.name) == 0) {
+            found = 1;
+            printf("_____________________\n");
+            printf("\nAccount number: %d\nDeposit Date: %02d/%02d/%d \nCountry: %s \nPhone number: %d \nAmount deposited: $%.2f \nType Of Account: %s\n",
+                   r.accountNbr, r.deposit.day, r.deposit.month, r.deposit.year,
+                   r.country, r.phone, r.amount, r.accountType);
+        }
+    }
+    fclose(pf);
+    if (found) {
+        stayOrReturn(1, checkAllAccounts, u);
+    } else {
+        printf("\nNo accounts found for this user.\n");
+        stayOrReturn(0, checkAllAccounts, u);
+    }
+}
+
 
 //##############################################################################################################################################################
 void updateAccount(struct User u);
