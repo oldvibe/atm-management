@@ -95,3 +95,4 @@ const int GetUserId();
 const int GetRecordId();
 bool IsPrintableName(char *str);
 bool IsPrintablePassword(char *str);
+int getLastAccountId();
