@@ -48,7 +48,6 @@ void initMenu(struct User *u);
 
 //this function dosn't work, it must print the informations of 
 //all the account that appear under the user (use the username to check) 
-void checkAllAccounts(struct User u);
 
 // this function ask the user for the account he want to change in it
 // after checking he is the owner of the account
@@ -88,11 +87,19 @@ void removeAccount(struct User u);
 //but this specific file with the new username and new user id
 void transferOwner(struct User u);
 
-int generateAccountNumber();
-int IsDigit(const char* phone);
-double getValidAmount(double amount);
-const int GetUserId();
-const int GetRecordId();
-bool IsPrintableName(char *str);
-bool IsPrintablePassword(char *str);
-int getLastAccountId();
+int IsPrintableName(const char *name);
+int GetUserId(void);
+int getLastAccountId(void);
+int generateAccountNumber(void);
+int IsNOTDigit(const char *valid);
+int isValidAccountType(const char *type);
+int isValidDate(int day, int month, int year);
+int Onlyalphabetical(char *str);
+void promptForDate(struct Record *newAccount);
+void promptForAccountType(struct Record *newAccount);
+void promptForCountry(struct Record *newAccount);
+void promptForPhone(struct Record *newAccount);
+void promptForAmount(struct Record *newAccount);
+void clearScreen();
+bool isValidPhone(int phone);
+bool isValidCountry(const char *country);
