@@ -37,36 +37,40 @@ void mainMenu(struct User u)
     switch (option)
     {
     case 1:
-       system("clear");
+        clearScreen();
         createNewAcc(&u);
         break;
     case 2:
         // student TODO : add your **Update account information** function
-        system("clear");
+        clearScreen();
        updateAccount(u);
         // here
         break;
     case 3:
         // student TODO : add your **Check the details of existing accounts** function
+        clearScreen();
         checkAccountInfo(u);
         // here
         break;
     case 4:
-    system("clear");
+        clearScreen();
         checkAllAccounts(u);
         break;
     case 5:
+        clearScreen();
         makeTransaction(u);
         // student TODO : add your **Make transaction** function
         // here
         break;
     case 6:
-        //removeAccount(u);
+        clearScreen();
+        removeAccount(u);
         // student TODO : add your **Remove existing account** function
         // here
         break;
     case 7:
-        //transferOwner(u);
+        clearScreen();
+        transferOwner(u);
         // student TODO : add your **Transfer owner** function
         // here
         break;
