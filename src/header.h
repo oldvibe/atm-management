@@ -41,7 +41,7 @@ void registerMenu();
 const char *getPassword(struct User u);
 
 // system function
-void createNewAcc(struct User u);
+void createNewAcc(struct User *u);
 void mainMenu(struct User u);
 void initMenu(struct User *u);
 
@@ -103,3 +103,4 @@ void promptForAmount(struct Record *newAccount);
 void clearScreen();
 bool isValidPhone(int phone);
 bool isValidCountry(const char *country);
+void clear_buffer(char *buffer, size_t size);

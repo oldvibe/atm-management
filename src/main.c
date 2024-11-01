@@ -38,7 +38,7 @@ void mainMenu(struct User u)
     {
     case 1:
        system("clear");
-        createNewAcc(u);
+        createNewAcc(&u);
         break;
     case 2:
         // student TODO : add your **Update account information** function
