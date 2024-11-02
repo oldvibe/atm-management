@@ -5,8 +5,7 @@
 const char *RECORDS = "./data/records.txt";
 const char *USER = "./data/user.txt";
 
-int getAccountFromFile(FILE *ptr, char name[50], struct Record *r)
-{
+int getAccountFromFile(FILE *ptr, char name[50], struct Record *r) {
     return fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
                   &r->id,
                   &r->userId,
@@ -18,8 +17,12 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r)
                   r->country,
                   &r->phone,
                   &r->amount,
-                  r->accountType) == EOF; 
+                  r->accountType) == 11;
 }
+// fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+//                       &tempRecord.id, &tempRecord.userId, tempRecord.name, &tempRecord.accountNbr,
+//                       &tempRecord.deposit.day, &tempRecord.deposit.month, &tempRecord.deposit.year,
+//                       tempRecord.country, &tempRecord.phone, &tempRecord.amount, tempRecord.accountType) == 11)
 
 //##############################################################################################################################################################
 
@@ -641,84 +644,101 @@ void removeAccount(struct User u) {
 }
 //##############################################################################################################################################################
 void transferOwner(struct User u) {
-   int accountNumber;
-   char newOwnerName[100];
-   struct Record r;
-   FILE *pf, *tempFile;
-   int found = 0;
+    int accountNumber;
+    char newOwnerName[100];
+    struct Record r;
+    FILE *pf;
+    int found = 0;
+    int newUserExists = 0;  
 
-   system("clear");
-   printf("\t\t====== Transfer Account Ownership =====\n\n");
-   
-   printf("Enter the account number to transfer: ");
-   scanf("%d", &accountNumber);
+    system("clear");
+    printf("\t\t====== Transfer Account Ownership =====\n\n");
+    
+    printf("Enter the account number to transfer: ");
+    scanf("%d", &accountNumber);
 
-   printf("Enter the new owner's name: ");
-   scanf(" %s", newOwnerName);
+    printf("Enter the new owner's name: ");
+    scanf(" %s", newOwnerName);
 
-   pf = fopen(RECORDS, "r");
-   if (pf == NULL) {
-       printf("Error opening file!\n");
-       stayOrReturn(1, mainMenu, u);
-       return;
-   }
+    pf = fopen(RECORDS, "r");
+    if (pf == NULL) {
+        printf("Error opening file!\n");
+        stayOrReturn(1, mainMenu, u);
+        return;
+    }
 
-   tempFile = fopen("temp.txt", "w");
-   if (tempFile == NULL) {
-       printf("Error creating temporary file!\n");
-       fclose(pf);
-       stayOrReturn(1, mainMenu, u);
-       return;
-   }
+    char name[50];
+    while (!getAccountFromFile(pf, name, &r)) {
+        if (strcmp(name, newOwnerName) == 0) {
+            newUserExists = 1;
+            break;
+        }
+    }
+    fclose(pf);
 
-   while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
-                 &r.id, &r.userId, r.name, &r.accountNbr,
-                 &r.deposit.day, &r.deposit.month, &r.deposit.year,
-                 r.country, &r.phone, &r.amount, r.accountType) == 11) {
-       
-       if (r.accountNbr == accountNumber && strcmp(r.name, u.name) == 0) {
-           char confirm;
-           printf("\nAre you sure you want to transfer account #%d to %s? (y/n): ", 
-                  accountNumber, newOwnerName);
-           scanf(" %c", &confirm);
-           
-           if (confirm == 'y' || confirm == 'Y') {
-               found = 1;
-               strcpy(r.name, newOwnerName);
-               fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                       r.id, r.userId, r.name, r.accountNbr,
-                       r.deposit.day, r.deposit.month, r.deposit.year,
-                       r.country, r.phone, r.amount, r.accountType);
-               printf("\nAccount ownership transferred successfully to %s.\n", newOwnerName);
-           } else {
-               fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                       r.id, r.userId, r.name, r.accountNbr,
-                       r.deposit.day, r.deposit.month, r.deposit.year,
-                       r.country, r.phone, r.amount, r.accountType);
-               printf("\nTransfer cancelled.\n");
-           }
-       } else {
-           fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                   r.id, r.userId, r.name, r.accountNbr,
-                   r.deposit.day, r.deposit.month, r.deposit.year,
-                   r.country, r.phone, r.amount, r.accountType);
-       }
-   }
+    if (!newUserExists) {
+        printf("\nError: The user %s does not exist in records.\n", newOwnerName);
+        stayOrReturn(1, mainMenu, u);
+        return;
+    }
 
-   fclose(pf);
-   fclose(tempFile);
+    pf = fopen(RECORDS, "r");
+    FILE *tempFile = fopen("temp.txt", "w");
+    if (pf == NULL || tempFile == NULL) {
+        printf("Error with files!\n");
+        if (pf) fclose(pf);
+        if (tempFile) fclose(tempFile);
+        stayOrReturn(1, mainMenu, u);
+        return;
+    }
 
-   if (!found) {
-       remove("temp.txt");
-       printf("\nAccount not found or you don't have permission to transfer it.\n");
-       stayOrReturn(1, mainMenu, u);
-       return;
-   }
 
-   remove(RECORDS);
-   rename("temp.txt", RECORDS);
+    rewind(pf);
 
-   stayOrReturn(1, mainMenu, u);
+    while (!getAccountFromFile(pf, name, &r)) {
+        if (r.accountNbr == accountNumber && strcmp(name, u.name) == 0) {
+            char confirm;
+            printf("\nAre you sure you want to transfer account #%d to %s? (y/n): ", 
+                   accountNumber, newOwnerName);
+            scanf(" %c", &confirm);
+            
+            if (confirm == 'y' || confirm == 'Y') {
+                found = 1;
+                strcpy(name, newOwnerName);
+                fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
+                        r.id, r.userId, name, r.accountNbr,
+                        r.deposit.day, r.deposit.month, r.deposit.year,
+                        r.country, r.phone, r.amount, r.accountType);
+                printf("\nAccount ownership transferred successfully to %s.\n", newOwnerName);
+            } else {
+                fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
+                        r.id, r.userId, name, r.accountNbr,
+                        r.deposit.day, r.deposit.month, r.deposit.year,
+                        r.country, r.phone, r.amount, r.accountType);
+                printf("\nTransfer cancelled.\n");
+            }
+        } else {
+            fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
+                    r.id, r.userId, name, r.accountNbr,
+                    r.deposit.day, r.deposit.month, r.deposit.year,
+                    r.country, r.phone, r.amount, r.accountType);
+        }
+    }
+
+    fclose(pf);
+    fclose(tempFile);
+
+    if (!found) {
+        remove("temp.txt");
+        printf("\nAccount not found or you don't have permission to transfer it.\n");
+        stayOrReturn(1, mainMenu, u);
+        return;
+    }
+
+    remove(RECORDS);
+    rename("temp.txt", RECORDS);
+
+    stayOrReturn(1, mainMenu, u);
 }
 
 //##############################################################################################################################################################
@@ -756,6 +776,7 @@ int getLastAccountId() {
 
     int lastId = 0;
     struct Record tempRecord;
+    char name[50];
 
     while (fscanf(fp, "%d %d %s %d %d/%d/%d %s %d %lf %s",
                   &tempRecord.id, &tempRecord.userId, tempRecord.name, &tempRecord.accountNbr,
