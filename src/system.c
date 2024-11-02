@@ -19,10 +19,6 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r) {
                   &r->amount,
                   r->accountType) == 11;
 }
-// fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
-//                       &tempRecord.id, &tempRecord.userId, tempRecord.name, &tempRecord.accountNbr,
-//                       &tempRecord.deposit.day, &tempRecord.deposit.month, &tempRecord.deposit.year,
-//                       tempRecord.country, &tempRecord.phone, &tempRecord.amount, tempRecord.accountType) == 11)
 
 //##############################################################################################################################################################
 
@@ -223,36 +219,36 @@ void login(char *username, char *password) {
 
 //##############################################################################################################################################################
 void createNewAcc(struct User *u) {
-    struct Record newAccount;
-    FILE *fp;
+    struct Record r;
+    FILE *pf;
 
     clearScreen();
     printf("\t\t\t\tCreating new account:\n");
-    memset(&newAccount, 0, sizeof(newAccount));
+    memset(&r, 0, sizeof(r));
     
-    newAccount.id = getLastAccountId();
-    newAccount.userId = u->id;
-    strcpy(newAccount.name, u->name);
-    newAccount.accountNbr = generateAccountNumber();
+    r.id = getLastAccountId();
+    r.userId = u->id;
+    strcpy(r.name, u->name);
+    r.accountNbr = generateAccountNumber();
 
-    promptForCountry(&newAccount);
-    promptForPhone(&newAccount);
-    promptForAmount(&newAccount);
-    promptForAccountType(&newAccount);
-    promptForDate(&newAccount);
+    promptForCountry(&r);
+    promptForPhone(&r);
+    promptForAmount(&r);
+    promptForAccountType(&r);
+    promptForDate(&r);
 
-    fp = fopen("./data/records.txt", "a");
-    if (fp == NULL) {
+    pf = fopen("./data/records.txt", "a");
+    if (pf == NULL) {
         printf("Error opening file. Please try again later.\n");
         stayOrReturn(1, mainMenu, *u);
         return;
     }
 
-    fprintf(fp, "%d %d %s %d %d/%d/%d %s %d %lf %s\n",
-            newAccount.id, newAccount.userId, newAccount.name, newAccount.accountNbr,
-            newAccount.deposit.day, newAccount.deposit.month, newAccount.deposit.year,
-            newAccount.country, newAccount.phone, newAccount.amount, newAccount.accountType);
-    fclose(fp);
+    fprintf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s\n",
+            r.id, r.userId, r.name, r.accountNbr,
+            r.deposit.day, r.deposit.month, r.deposit.year,
+            r.country, r.phone, r.amount, r.accountType);
+    fclose(pf);
 
     printf("\nAccount created successfully!\n");
     stayOrReturn(1, mainMenu, *u);
@@ -353,11 +349,11 @@ void updateAccount(struct User u) {
                         char newCountry[100];
                         printf("\nEnter the new country: ");
                         scanf("%s", newCountry);
-                        if (!Onlyalphabetical(newCountry)) {
+                        if (!Onlyalphabetical(newCountry) || !isValidCountry(newCountry)) {
                             printf("\nInvalid country name. Country should be 2-99 characters and contain only letters.\n");
                             continue;
                         }
-                        strncpy(r.country, newCountry, sizeof(r.country));
+                        strcpy(r.country, newCountry);
                         break;
                     }
                     case 2: {
@@ -667,9 +663,11 @@ void transferOwner(struct User u) {
         return;
     }
 
-    char name[50];
-    while (!getAccountFromFile(pf, name, &r)) {
-        if (strcmp(name, newOwnerName) == 0) {
+    while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+                  &r.id, &r.userId, r.name, &r.accountNbr,
+                  &r.deposit.day, &r.deposit.month, &r.deposit.year,
+                  r.country, &r.phone, &r.amount, r.accountType) == EOF) {
+        if (strcmp(r.name, newOwnerName) == 0) {
             newUserExists = 1;
             break;
         }
@@ -695,8 +693,11 @@ void transferOwner(struct User u) {
 
     rewind(pf);
 
-    while (!getAccountFromFile(pf, name, &r)) {
-        if (r.accountNbr == accountNumber && strcmp(name, u.name) == 0) {
+    while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+                  &r.id, &r.userId, r.name, &r.accountNbr,
+                  &r.deposit.day, &r.deposit.month, &r.deposit.year,
+                  r.country, &r.phone, &r.amount, r.accountType) == 11) {
+        if (r.accountNbr == accountNumber && strcmp(r.name, u.name) == 0) {
             char confirm;
             printf("\nAre you sure you want to transfer account #%d to %s? (y/n): ", 
                    accountNumber, newOwnerName);
@@ -704,22 +705,22 @@ void transferOwner(struct User u) {
             
             if (confirm == 'y' || confirm == 'Y') {
                 found = 1;
-                strcpy(name, newOwnerName);
+                strcpy(r.name, newOwnerName);
                 fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                        r.id, r.userId, name, r.accountNbr,
+                        r.id, r.userId, r.name, r.accountNbr,
                         r.deposit.day, r.deposit.month, r.deposit.year,
                         r.country, r.phone, r.amount, r.accountType);
                 printf("\nAccount ownership transferred successfully to %s.\n", newOwnerName);
             } else {
                 fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                        r.id, r.userId, name, r.accountNbr,
+                        r.id, r.userId, r.name, r.accountNbr,
                         r.deposit.day, r.deposit.month, r.deposit.year,
                         r.country, r.phone, r.amount, r.accountType);
                 printf("\nTransfer cancelled.\n");
             }
         } else {
             fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                    r.id, r.userId, name, r.accountNbr,
+                    r.id, r.userId, r.name, r.accountNbr,
                     r.deposit.day, r.deposit.month, r.deposit.year,
                     r.country, r.phone, r.amount, r.accountType);
         }
@@ -832,9 +833,9 @@ int isValidAccountType(const char* type) {
 
 //################################################################################################################################################
 int isValidDate(int day, int month, int year) {
-    if (month < 1 || month > 12) return false;
-    if (day < 1 || day > 31) return false;
-    if(year < 2000 || year > 2050) return false;
+    if (month < 1 || month > 12 || day < 1 || day > 31 || year < 2000 || year > 2050) {
+        return false;
+    }
     
     int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -846,16 +847,7 @@ int isValidDate(int day, int month, int year) {
 }
 
 //################################################################################################################################################
-// bool IsPrintablePassword(char *str) {
-//     int i = 0;
-//     while (str[i]) {
-//         if (!(str[i] >= 32 && str[i] <= 126)) {
-//             return false;
-//         }
-//         i++;
-//     }
-//     return true;
-// }
+
 //****************************************************************************************************************************************************************
 
 int Onlyalphabetical(char *str) {
@@ -943,15 +935,18 @@ void promptForDate(struct Record *newAccount) {
 }
 
 bool isValidPhone(int phone) {
-    char phoneStr[11];
-    snprintf(phoneStr, sizeof(phoneStr), "%d", phone);
-    return phone >= 100000000 && phone <= 999999999 && IsNOTDigit(phoneStr);
+    return phone >= 100000000 && phone <= 999999999;
 }
 
 bool isValidCountry(const char *country) {
-    return strlen(country) > 1 && strlen(country) < 99 && 
-           IsNOTDigit(country) && IsPrintableName(country);
+    if (strlen(country) < 2 || strlen(country) > 99) return false;
+    
+    for (int i = 0; country[i]; i++) {
+        if (!isalpha(country[i])) return false;
+    }
+    return true;
 }
+
 
 void clearScreen() {
     system("clear");
