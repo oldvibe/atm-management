@@ -5,62 +5,21 @@
 const char *RECORDS = "./data/records.txt";
 const char *USER = "./data/user.txt";
 
-int getAccountFromFile(FILE *ptr, char name[50], struct Record *r) {
-    return fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
-                  &r->id,
-                  &r->userId,
-                  name,
-                  &r->accountNbr,
-                  &r->deposit.day,
-                  &r->deposit.month,
-                  &r->deposit.year,
-                  r->country,
-                  &r->phone,
-                  &r->amount,
-                  r->accountType) == 11;
-}
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
-void putAccountToFile(FILE *ptr, const char *name, struct Record r) {
-    fprintf(ptr, "%d %d %s %d %02d/%02d/%d %s %d %.2lf %s\n",
-            r.id,
-            r.userId,
-            name,
-            r.accountNbr,
-            r.deposit.day,
-            r.deposit.month,
-            r.deposit.year,
-            r.country,
-            r.phone,
-            r.amount,
-            r.accountType);
-}
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   SUCCES  */
+/***************************************************************************************************************************************************************************************************/
 
-void saveAccountToFile(FILE *ptr, struct User u, struct Record r)
-{
-    fprintf(ptr, "%s %d %02d/%02d/%d %s %d %.2f %s\n",
-            u.name,
-            r.accountNbr,
-            r.deposit.day,
-            r.deposit.month,
-            r.deposit.year,
-            r.country,
-            r.phone,
-            r.amount,
-            r.accountType);
-}
-
-//##############################################################################################################################################################
-
-void stayOrReturn(int notGood, void f(struct User u), struct User u)
+void Succes(int notGood, void f(struct User u), struct User u)
 {
     int option;
     if (notGood == 0)
     {
-        system("clear");
+        clearScreen();
         printf("\n✖ Record not found!!\n");
     invalid:
         printf("\nEnter 0 to try again, 1 to return to main menu and 2 to exit:");
@@ -84,17 +43,20 @@ void stayOrReturn(int notGood, void f(struct User u), struct User u)
     }
     if (option == 1)
     {
-        system("clear");
+        clearScreen();
         mainMenu(u);
     }
     else
     {
-        system("clear");
+        clearScreen();
         exit(1);
     }
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   REGISTRATION  */
+/***************************************************************************************************************************************************************************************************/
+
 void registerMenu() {
     FILE *fp;
     struct User newUser;
@@ -106,7 +68,7 @@ void registerMenu() {
         printf("\n\t\tEnteur ur username (max 49 characters): ");
         scanf("%s", newUser.name);
         if (strlen(newUser.name) > 49 || !Onlyalphabetical(newUser.name)) {
-            system("clear");
+            clearScreen();
             printf("\nUsername is Invalid. Please try again.\n");
             continue;
         }
@@ -141,7 +103,7 @@ void registerMenu() {
         printf("\n\t\tEnter your password (max 49 characters): ");
         scanf("%s", newUser.password);
         if (strlen(newUser.password) > 49) {
-            system("clear");
+            clearScreen();
             printf("\nPassword is too long. Please try again.\n");
             registerMenu();
         } 
@@ -166,18 +128,20 @@ void registerMenu() {
     }
     fprintf(fp, "%d %s %s\n", newUser.id, newUser.name, newUser.password);
     fclose(fp);
-    system("clear");
+    clearScreen();
     printf("\nRegistration successful!\n");
-    stayOrReturn(1, mainMenu, newUser);
+    Succes(1, mainMenu, newUser);
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   LOGIN TO SESSION  */
+/***************************************************************************************************************************************************************************************************/
 
 void login(char *username, char *password) {
      FILE *fp;
      int found = 0;
     do {
-        system("clear");
+        clearScreen();
         printf("\n\n\t\t Bank Management System\n");
         clear_buffer(username, 100);
         clear_buffer(password, 100);
@@ -216,8 +180,10 @@ void login(char *username, char *password) {
 }
 
 
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   CREAT NEW ACCOUNT  */
+/***************************************************************************************************************************************************************************************************/
 
-//##############################################################################################################################################################
 void createNewAcc(struct User *u) {
     struct Record r;
     FILE *pf;
@@ -240,7 +206,7 @@ void createNewAcc(struct User *u) {
     pf = fopen("./data/records.txt", "a");
     if (pf == NULL) {
         printf("Error opening file. Please try again later.\n");
-        stayOrReturn(1, mainMenu, *u);
+        Succes(1, mainMenu, *u);
         return;
     }
 
@@ -251,11 +217,13 @@ void createNewAcc(struct User *u) {
     fclose(pf);
 
     printf("\nAccount created successfully!\n");
-    stayOrReturn(1, mainMenu, *u);
+    Succes(1, mainMenu, *u);
 }
-//##############################################################################################################################################################
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   CHECK ALL ACCOUNTS OF USER  */
+/***************************************************************************************************************************************************************************************************/
+
 void checkAllAccounts(struct User u) {
     struct Record r;
     int accountsFound = 0;
@@ -263,11 +231,11 @@ void checkAllAccounts(struct User u) {
     
     if (pf == NULL) {
         printf("\nError: Unable to open records file. Please try again later.\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
-    system("clear");
+    clearScreen();
     printf("\t====== All Accounts for %s ======\n\n", u.name);
 
     while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
@@ -307,9 +275,13 @@ void checkAllAccounts(struct User u) {
     while (getchar() != '\n'); 
     getchar(); 
     
-    stayOrReturn(1, mainMenu, u);
+    Succes(1, mainMenu, u);
 }
-//##############################################################################################################################################################
+
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   UPDATE INFORMATION (COUNTRY/ PHONE NUMBER)  */
+/***************************************************************************************************************************************************************************************************/
+
 void updateAccount(struct User u) {
     struct Record r;
     int accountNBR, choice;
@@ -321,7 +293,7 @@ void updateAccount(struct User u) {
         perror("Error opening file");
         if (pf) fclose(pf);
         if (tempFile) fclose(tempFile);
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
@@ -376,7 +348,7 @@ void updateAccount(struct User u) {
                         fclose(tempFile);
                         remove(RECORDS);
                         rename("temp.txt", RECORDS);
-                        stayOrReturn(1, mainMenu, u);
+                        Succes(1, mainMenu, u);
                         return;
                     default:
                         printf("\nInvalid choice. Please try again.\n");
@@ -398,7 +370,7 @@ void updateAccount(struct User u) {
     if (!found) {
         printf("\nAccount not found.\n");
         remove("temp.txt");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
@@ -408,7 +380,10 @@ void updateAccount(struct User u) {
     printf("\nAccount information updated successfully.\n");
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   CHECK ACCOUNT INFORMATIONS  */
+/***************************************************************************************************************************************************************************************************/
+
 void checkAccountInfo(struct User u)
 {
     struct Record r;
@@ -417,11 +392,11 @@ void checkAccountInfo(struct User u)
 
     if (pf == NULL) {
         printf("Error opening file!\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
-    system("clear");
+    clearScreen();
     printf("\t\t====== Check Account Info =====\n\n");
     printf("\nEnter the account number:");
     scanf("%d", &accountNumber);
@@ -452,15 +427,16 @@ void checkAccountInfo(struct User u)
     
     if (!found) {
         printf("\nAccount not found or you don't have access to this account!\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
     } else {
-        stayOrReturn(1, checkAccountInfo, u);
+        Succes(1, checkAccountInfo, u);
     }
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   MAKE TRANSACTION (WHIDRAW OR DEPOSIT) */
+/***************************************************************************************************************************************************************************************************/
 
-//##############################################################################################################################################################
 void makeTransaction(struct User u) {
     int accountNumber, choice;
     double amount;
@@ -470,11 +446,11 @@ void makeTransaction(struct User u) {
 
     if (pf == NULL) {
         printf("Error opening file!\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
-    system("clear");
+    clearScreen();
     printf("\t\t====== Make Transaction =====\n\n");
     printf("\nEnter the account number: ");
     scanf("%d", &accountNumber);
@@ -492,7 +468,7 @@ void makeTransaction(struct User u) {
     if (!found) {
         printf("\nAccount not found!\n");
         fclose(pf);
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
@@ -506,7 +482,7 @@ void makeTransaction(struct User u) {
 
         switch(choice) {
             case 1: {
-                system("clear");
+                clearScreen();
                 printf("\nEnter the amount to deposit: ");
                 scanf("%lf", &amount);
                 
@@ -519,7 +495,7 @@ void makeTransaction(struct User u) {
                 break;
             }
             case 2: {
-                system("clear");
+                clearScreen();
                 printf("\nEnter the amount to withdraw: ");
                 scanf("%lf", &amount);
                 
@@ -533,10 +509,10 @@ void makeTransaction(struct User u) {
             }
             case 3:
                 fclose(pf);
-                stayOrReturn(1, mainMenu, u);
+                Succes(1, mainMenu, u);
                 return;
             default:
-                system("clear");
+                clearScreen();
                 printf("\nInvalid choice. Please try again.\n");
                 continue;
         }
@@ -546,7 +522,7 @@ void makeTransaction(struct User u) {
         if (tempFile == NULL) {
             printf("Error creating temporary file.\n");
             fclose(pf);
-            stayOrReturn(1, mainMenu, u);
+            Succes(1, mainMenu, u);
             return;
         }
 
@@ -576,19 +552,22 @@ void makeTransaction(struct User u) {
         rename("temp.txt", RECORDS);
 
         printf("\nTransaction completed successfully.\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   REMOVE ACCOUNT  */
+/***************************************************************************************************************************************************************************************************/
+
 void removeAccount(struct User u) {
     int accountNumber;
     struct Record r;
     FILE *pf, *tempFile;
     int found = 0;
 
-    system("clear");
+    clearScreen();
     printf("\t\t====== Remove Account =====\n\n");
     printf("Enter the account number to remove: ");
     scanf("%d", &accountNumber);
@@ -596,7 +575,7 @@ void removeAccount(struct User u) {
     pf = fopen(RECORDS, "r");
     if (pf == NULL) {
         printf("Error opening file!\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
@@ -604,7 +583,7 @@ void removeAccount(struct User u) {
     if (tempFile == NULL) {
         printf("Error creating temporary file!\n");
         fclose(pf);
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
@@ -629,16 +608,20 @@ void removeAccount(struct User u) {
     if (!found) {
         remove("temp.txt");
         printf("\nAccount not found or you don't have permission to remove it.\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
     remove(RECORDS);
     rename("temp.txt", RECORDS);
 
-    stayOrReturn(1, mainMenu, u);
+    Succes(1, mainMenu, u);
 }
-//##############################################################################################################################################################
+
+/***************************************************************************************************************************************************************************************************/
+                                                     /*   TRANSFERT OWNER TO ANOTHER USER  */
+/***************************************************************************************************************************************************************************************************/
+
 void transferOwner(struct User u) {
     int accountNumber;
     char newOwnerName[100];
@@ -647,26 +630,27 @@ void transferOwner(struct User u) {
     int found = 0;
     int newUserExists = 0;  
 
-    system("clear");
+    clearScreen();
     printf("\t\t====== Transfer Account Ownership =====\n\n");
     
     printf("Enter the account number to transfer: ");
     scanf("%d", &accountNumber);
+    getchar();
 
     printf("Enter the new owner's name: ");
-    scanf(" %s", newOwnerName);
+    scanf("%s", newOwnerName);
 
     pf = fopen(RECORDS, "r");
     if (pf == NULL) {
         printf("Error opening file!\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
     while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
                   &r.id, &r.userId, r.name, &r.accountNbr,
                   &r.deposit.day, &r.deposit.month, &r.deposit.year,
-                  r.country, &r.phone, &r.amount, r.accountType) == EOF) {
+                  r.country, &r.phone, &r.amount, r.accountType) == 11) {
         if (strcmp(r.name, newOwnerName) == 0) {
             newUserExists = 1;
             break;
@@ -676,7 +660,7 @@ void transferOwner(struct User u) {
 
     if (!newUserExists) {
         printf("\nError: The user %s does not exist in records.\n", newOwnerName);
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
@@ -686,17 +670,15 @@ void transferOwner(struct User u) {
         printf("Error with files!\n");
         if (pf) fclose(pf);
         if (tempFile) fclose(tempFile);
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
-
-
-    rewind(pf);
 
     while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
                   &r.id, &r.userId, r.name, &r.accountNbr,
                   &r.deposit.day, &r.deposit.month, &r.deposit.year,
                   r.country, &r.phone, &r.amount, r.accountType) == 11) {
+        
         if (r.accountNbr == accountNumber && strcmp(r.name, u.name) == 0) {
             char confirm;
             printf("\nAre you sure you want to transfer account #%d to %s? (y/n): ", 
@@ -706,24 +688,16 @@ void transferOwner(struct User u) {
             if (confirm == 'y' || confirm == 'Y') {
                 found = 1;
                 strcpy(r.name, newOwnerName);
-                fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                        r.id, r.userId, r.name, r.accountNbr,
-                        r.deposit.day, r.deposit.month, r.deposit.year,
-                        r.country, r.phone, r.amount, r.accountType);
                 printf("\nAccount ownership transferred successfully to %s.\n", newOwnerName);
             } else {
-                fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                        r.id, r.userId, r.name, r.accountNbr,
-                        r.deposit.day, r.deposit.month, r.deposit.year,
-                        r.country, r.phone, r.amount, r.accountType);
                 printf("\nTransfer cancelled.\n");
             }
-        } else {
-            fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
-                    r.id, r.userId, r.name, r.accountNbr,
-                    r.deposit.day, r.deposit.month, r.deposit.year,
-                    r.country, r.phone, r.amount, r.accountType);
         }
+        
+        fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
+                r.id, r.userId, r.name, r.accountNbr,
+                r.deposit.day, r.deposit.month, r.deposit.year,
+                r.country, r.phone, r.amount, r.accountType);
     }
 
     fclose(pf);
@@ -732,18 +706,19 @@ void transferOwner(struct User u) {
     if (!found) {
         remove("temp.txt");
         printf("\nAccount not found or you don't have permission to transfer it.\n");
-        stayOrReturn(1, mainMenu, u);
+        Succes(1, mainMenu, u);
         return;
     }
 
     remove(RECORDS);
     rename("temp.txt", RECORDS);
 
-    stayOrReturn(1, mainMenu, u);
+    Succes(1, mainMenu, u);
 }
 
-//##############################################################################################################################################################
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 int IsNOTDigit(const char *valid) {
     int i;
     for (i = 0; valid[i] != '\0'; i++) {
@@ -754,20 +729,24 @@ int IsNOTDigit(const char *valid) {
     return 1;
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 int generateAccountNumber() {
     static int accountNumber = 10;
     return ++accountNumber;
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 void clear_buffer(char *buffer, size_t size) {
     memset(buffer, 0, size);
 }
 
-//##############################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
-//##############################################################################################################################################################
 int getLastAccountId() {
     FILE *fp = fopen("./data/records.txt", "r");
     if (fp == NULL) {
@@ -791,7 +770,10 @@ int getLastAccountId() {
     fclose(fp);
     return lastId + 1;
 }
-//##############################################################################################################################################################
+
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 int GetUserId() {
     FILE *fp = fopen("./data/users.txt", "r");
     if (fp == NULL) {
@@ -812,7 +794,9 @@ int GetUserId() {
     return lastId + 1;
 }
 
-//################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 int IsPrintableName(const char *str) {
     int i = 0;
     while (str[i]) {
@@ -824,14 +808,18 @@ int IsPrintableName(const char *str) {
     return 1;
 }
 
-//################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 int isValidAccountType(const char* type) {
     return (strcmp(type, "saving") == 0 || strcmp(type, "current") == 0 ||
             strcmp(type, "fixed01") == 0 || strcmp(type, "fixed02") == 0 ||
             strcmp(type, "fixed03") == 0);
 }
 
-//################################################################################################################################################
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 int isValidDate(int day, int month, int year) {
     if (month < 1 || month > 12 || day < 1 || day > 31 || year < 2000 || year > 2050) {
         return false;
@@ -846,9 +834,9 @@ int isValidDate(int day, int month, int year) {
     return day <= daysInMonth[month - 1];
 }
 
-//################################################################################################################################################
 
-//****************************************************************************************************************************************************************
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
 int Onlyalphabetical(char *str) {
     int i = 0;
@@ -862,13 +850,15 @@ int Onlyalphabetical(char *str) {
     return 1;
 }
 
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
 void promptForCountry(struct Record *newAccount) {
     while (true) {
         printf("\nEnter the country: ");
         scanf("%s", newAccount->country);
         
-        if (!Onlyalphabetical(newAccount->country) || isValidCountry(newAccount->country)) {
+        if (!isValidCountry(newAccount->country)) {
             clearScreen();
             printf("\nInvalid country name. Country should be 2-99 characters and contain only letters.\n");
         } else {
@@ -876,6 +866,9 @@ void promptForCountry(struct Record *newAccount) {
         }
     }
 }
+
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
 void promptForPhone(struct Record *newAccount) {
     while (true) {
@@ -892,6 +885,9 @@ void promptForPhone(struct Record *newAccount) {
     }
 }
 
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 void promptForAmount(struct Record *newAccount) {
     while (true) {
         printf("\nEnter the amount to deposit: $");
@@ -904,6 +900,9 @@ void promptForAmount(struct Record *newAccount) {
         }
     }
 }
+
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
 void promptForAccountType(struct Record *newAccount) {
     while (true) {
@@ -918,6 +917,9 @@ void promptForAccountType(struct Record *newAccount) {
         }
     }
 }
+
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
 void promptForDate(struct Record *newAccount) {
     while (true) {
@@ -934,9 +936,15 @@ void promptForDate(struct Record *newAccount) {
     }
 }
 
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
+
 bool isValidPhone(int phone) {
     return phone >= 100000000 && phone <= 999999999;
 }
+
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
 bool isValidCountry(const char *country) {
     if (strlen(country) < 2 || strlen(country) > 99) return false;
@@ -947,7 +955,12 @@ bool isValidCountry(const char *country) {
     return true;
 }
 
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/
 
 void clearScreen() {
-    system("clear");
+   system("clear");
 }
+
+/***************************************************************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************************************************/

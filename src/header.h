@@ -31,14 +31,12 @@ struct User
     char confirmPassword[50];
 };
 
-void putAccountToFile(FILE *ptr, const char *name, struct Record r);
 
 // authentication functions
 void login(char *a, char *pass);
-void registerMenu();
 //get the information of the new user (the username must be unique)
+void registerMenu();
 
-const char *getPassword(struct User u);
 
 // system function
 void createNewAcc(struct User *u);
