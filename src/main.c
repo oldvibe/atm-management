@@ -3,7 +3,7 @@
 void mainMenu(struct User u)
 {
     int option;
-    system("clear");
+    clearScreen();
       printf("              ╔═════════════════════════════════════════════════════╗\n");
     printf("              ║                                                     ║\n");
     printf("              ║                ======= ATM =======                  ║\n");
@@ -41,38 +41,28 @@ void mainMenu(struct User u)
         createNewAcc(&u);
         break;
     case 2:
-        // student TODO : add your **Update account information** function
-        clearScreen();
+    clearScreen();
        updateAccount(u);
-        // here
         break;
     case 3:
-        // student TODO : add your **Check the details of existing accounts** function
-        clearScreen();
+    clearScreen();
         checkAccountInfo(u);
-        // here
         break;
     case 4:
         clearScreen();
         checkAllAccounts(u);
         break;
     case 5:
-        clearScreen();
+    clearScreen();
         makeTransaction(u);
-        // student TODO : add your **Make transaction** function
-        // here
         break;
     case 6:
-        clearScreen();
+    clearScreen();
         removeAccount(u);
-        // student TODO : add your **Remove existing account** function
-        // here
         break;
     case 7:
-        clearScreen();
+    clearScreen();
         transferOwner(u);
-        // student TODO : add your **Transfer owner** function
-        // here
         break;
     case 8:
         exit(1);
@@ -87,7 +77,7 @@ void initMenu(struct User *u)
 {
     int r = 0;
     int option;
-    system("clear");
+    clearScreen();
    printf("              ╔═════════════════════════════════════════════╗\n");
     printf("              ║             ======= ATM =======             ║\n");
     printf("              ║                                             ║\n");
@@ -112,7 +102,7 @@ void initMenu(struct User *u)
             r = 1;
             break;
         case 2:
-            system("clear");
+           clearScreen();
             registerMenu(u->name, u->password);
             r = 1;
             break;
