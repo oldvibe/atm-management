@@ -38,7 +38,7 @@ void mainMenu(struct User u)
     {
     case 1:
         clearScreen();
-        createNewAcc(&u);
+        createNewAcc(u);
         break;
     case 2:
     clearScreen();

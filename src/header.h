@@ -39,7 +39,7 @@ void registerMenu();
 
 
 // system function
-void createNewAcc(struct User *u);
+void createNewAcc(struct User u);
 void mainMenu(struct User u);
 void initMenu(struct User *u);
 
@@ -85,6 +85,7 @@ void removeAccount(struct User u);
 //but this specific file with the new username and new user id
 void transferOwner(struct User u);
 
+void displayInterestInfo(struct Record r);
 int IsPrintableName(const char *name);
 int GetUserId(void);
 int getLastAccountId(void);

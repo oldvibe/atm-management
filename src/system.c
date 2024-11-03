@@ -184,19 +184,20 @@ void login(char *username, char *password) {
                                                      /*   CREAT NEW ACCOUNT  */
 /***************************************************************************************************************************************************************************************************/
 
-void createNewAcc(struct User *u) {
+void createNewAcc(struct User u) {
     struct Record r;
     FILE *pf;
 
     clearScreen();
     printf("\t\t\t\tCreating new account:\n");
     memset(&r, 0, sizeof(r));
+    int accountnbr;
     
     r.id = getLastAccountId();
-    r.userId = u->id;
-    strcpy(r.name, u->name);
+    r.userId = u.id;
+    strcpy(r.name, u.name);
     r.accountNbr = generateAccountNumber();
-
+ 
     promptForCountry(&r);
     promptForPhone(&r);
     promptForAmount(&r);
@@ -206,7 +207,7 @@ void createNewAcc(struct User *u) {
     pf = fopen("./data/records.txt", "a");
     if (pf == NULL) {
         printf("Error opening file. Please try again later.\n");
-        Succes(1, mainMenu, *u);
+        Succes(1, mainMenu, u);
         return;
     }
 
@@ -217,7 +218,7 @@ void createNewAcc(struct User *u) {
     fclose(pf);
 
     printf("\nAccount created successfully!\n");
-    Succes(1, mainMenu, *u);
+    Succes(1, mainMenu, u);
 }
 
 /***************************************************************************************************************************************************************************************************/
@@ -419,6 +420,8 @@ void checkAccountInfo(struct User u)
                 printf("     ║ ==> Balance        : $%-16.2f║\n", r.amount);
                 printf("     ║ ==> Account Type   : %-17s║\n", r.accountType);
                 printf("     ╚═══════════════════════════════════════╝\n");
+
+                displayInterestInfo(r);
             break;
         }
     }
@@ -733,8 +736,25 @@ int IsNOTDigit(const char *valid) {
 /***************************************************************************************************************************************************************************************************/
 
 int generateAccountNumber() {
-    static int accountNumber = 10;
-    return ++accountNumber;
+    FILE *fp = fopen("./data/records.txt", "r");
+    if (fp == NULL) {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    int lastId = 0;
+    struct Record tempRecord;
+    while (fscanf(fp, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+                  &tempRecord.id, &tempRecord.userId, tempRecord.name, &tempRecord.accountNbr,
+                  &tempRecord.deposit.day, &tempRecord.deposit.month, &tempRecord.deposit.year,
+                  tempRecord.country, &tempRecord.phone, &tempRecord.amount, tempRecord.accountType) != EOF) {
+        if (tempRecord.accountNbr > lastId) {
+            lastId = tempRecord.id;
+        }
+    }
+
+    fclose(fp);
+    return lastId + 10;
 }
 
 /***************************************************************************************************************************************************************************************************/
@@ -964,3 +984,58 @@ void clearScreen() {
 
 /***************************************************************************************************************************************************************************************************/
 /***************************************************************************************************************************************************************************************************/
+void displayInterestInfo(struct Record r) {
+    double interestRate = 0.0;
+    double monthlyInterest = 0.0;
+
+    printf("\n     ╔═══════════════════════════════════════╗\n");
+    printf("     ║\t ########## Interest #########       ║\n");
+    printf("     ╠═══════════════════════════════════════╣\n");
+
+    if (strcmp(r.accountType, "saving") == 0) {
+        interestRate = 0.07; 
+        monthlyInterest = (r.amount * interestRate) / 12;
+        printf("     ║ Account Type: Saving                  ║\n");
+        printf("     ║ Interest Rate: 7%%                     ║\n");
+        printf("     ║ Monthly Interest: $%-17.2f  ║\n", monthlyInterest);
+        printf("     ║ Payment Date: Day %-2d of every month   ║\n", r.deposit.day);
+    }
+    else if (strcmp(r.accountType, "fixed01") == 0) {
+        interestRate = 0.04; 
+        monthlyInterest = (r.amount * interestRate) / 12;
+        printf("     ║ Account Type: Fixed Deposit - 1 Year  ║\n");
+        printf("     ║ Interest Rate: 4%%                     ║\n");
+        printf("     ║ Monthly Interest: $%-17.2f  ║\n", monthlyInterest);
+        printf("     ║ Payment Date: Day %-2d of every month   ║\n", r.deposit.day);
+        printf("     ║ Maturity Date: %02d/%02d/%-15d  ║\n", 
+               r.deposit.day, r.deposit.month, r.deposit.year + 1);
+    }
+    else if (strcmp(r.accountType, "fixed02") == 0) {
+        interestRate = 0.05; 
+        monthlyInterest = (r.amount * interestRate) / 12;
+        printf("     ║ Account Type: Fixed Deposit - 2 Years ║\n");
+        printf("     ║ Interest Rate: 5%%                     ║\n");
+        printf("     ║ Monthly Interest: $%-17.2f  ║\n", monthlyInterest);
+        printf("     ║ Payment Date: Day %-2d of every month   ║\n", r.deposit.day);
+        printf("     ║ Maturity Date: %02d/%02d/%-15d  ║\n", 
+               r.deposit.day, r.deposit.month, r.deposit.year + 2);
+    }
+    else if (strcmp(r.accountType, "fixed03") == 0) {
+        interestRate = 0.08; 
+        monthlyInterest = (r.amount * interestRate) / 12;
+        printf("     ║ Account Type: Fixed Deposit - 3 Years ║\n");
+        printf("     ║ Interest Rate: 8%%                     ║\n");
+        printf("     ║ Monthly Interest: $%-17.2f  ║\n", monthlyInterest);
+        printf("     ║ Payment Date: Day %-2d of every month   ║\n", r.deposit.day);
+        printf("     ║ Maturity Date: %02d/%02d/%-15d  ║\n", 
+               r.deposit.day, r.deposit.month, r.deposit.year + 3);
+    }
+    else if (strcmp(r.accountType, "current") == 0) {
+        printf("     ║ Account Type: Current                 ║\n");
+        printf("     ║                                       ║\n");
+        printf("     ║ You will not get interests because    ║\n");
+        printf("     ║ the account is of type current        ║\n");
+    }
+    
+    printf("     ╚═══════════════════════════════════════╝\n");
+}
