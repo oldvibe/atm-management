@@ -61,7 +61,7 @@ void registerMenu() {
     FILE *fp;
     struct User newUser;
     char password;
-
+    printf("\033[95m");
     printf("\n\t\t\t===== Register =====\n");
 
     do {
@@ -119,7 +119,8 @@ void registerMenu() {
         }
     } while (1);
 
-    newUser.id = GetUserId();  
+    newUser.id = GetUserId(); 
+    printf("\033[39m"); 
 
     fp = fopen("./data/users.txt", "a");
     if (fp == NULL) {
@@ -142,6 +143,7 @@ void login(char *username, char *password) {
      int found = 0;
     do {
         clearScreen();
+        printf("\033[95m");
         printf("\n\n\t\t Bank Management System\n");
         clear_buffer(username, 100);
         clear_buffer(password, 100);
@@ -149,6 +151,7 @@ void login(char *username, char *password) {
         scanf("%s", username);
         printf("\t\t Password: ");
         scanf("%s", password);
+        printf("\033[39m");
 
         fp = fopen("./data/users.txt", "r");
         if (fp == NULL) {
@@ -189,6 +192,7 @@ void createNewAcc(struct User u) {
     FILE *pf;
 
     clearScreen();
+    printf("\033[95m");
     printf("\t\t\t\tCreating new account:\n");
     memset(&r, 0, sizeof(r));
     int accountnbr;
@@ -203,6 +207,7 @@ void createNewAcc(struct User u) {
     promptForAmount(&r);
     promptForAccountType(&r);
     promptForDate(&r);
+    printf("\033[39m");
 
     pf = fopen("./data/records.txt", "a");
     if (pf == NULL) {
@@ -237,6 +242,7 @@ void checkAllAccounts(struct User u) {
     }
 
     clearScreen();
+    printf("\033[95m");
     printf("\t====== All Accounts for %s ======\n\n", u.name);
 
     while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
@@ -257,6 +263,7 @@ void checkAllAccounts(struct User u) {
                 printf("     ║ ==> Balance        : $%-16.2f║\n", r.amount);
                 printf("     ║ ==> Account Type   : %-17s║\n", r.accountType);
                 printf("     ╚═══════════════════════════════════════╝\n");
+                printf("\033[39m");
         }
     }
 
@@ -298,6 +305,7 @@ void updateAccount(struct User u) {
         return;
     }
 
+    printf("\033[95m");
     printf("\t\t====== Update Account Information ======\n\n");
     printf("Enter the account number you want to update: ");
     scanf("%d", &accountNBR);
@@ -358,6 +366,7 @@ void updateAccount(struct User u) {
                 break;
             }
         }
+        printf("\033[39m");
         
         fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %d %.2f %s\n",
                 r.id, r.userId, r.name, r.accountNbr,
@@ -398,6 +407,7 @@ void checkAccountInfo(struct User u)
     }
 
     clearScreen();
+    printf("\033[95m");
     printf("\t\t====== Check Account Info =====\n\n");
     printf("\nEnter the account number:");
     scanf("%d", &accountNumber);
@@ -422,6 +432,7 @@ void checkAccountInfo(struct User u)
                 printf("     ╚═══════════════════════════════════════╝\n");
 
                 displayInterestInfo(r);
+                printf("\033[39m");
             break;
         }
     }
@@ -454,6 +465,7 @@ void makeTransaction(struct User u) {
     }
 
     clearScreen();
+    printf("\033[95m");
     printf("\t\t====== Make Transaction =====\n\n");
     printf("\nEnter the account number: ");
     scanf("%d", &accountNumber);
@@ -555,6 +567,7 @@ void makeTransaction(struct User u) {
         rename("temp.txt", RECORDS);
 
         printf("\nTransaction completed successfully.\n");
+        printf("\033[39m");
         Succes(1, mainMenu, u);
         return;
     }
@@ -571,6 +584,7 @@ void removeAccount(struct User u) {
     int found = 0;
 
     clearScreen();
+    printf("\033[95m");
     printf("\t\t====== Remove Account =====\n\n");
     printf("Enter the account number to remove: ");
     scanf("%d", &accountNumber);
@@ -611,6 +625,7 @@ void removeAccount(struct User u) {
     if (!found) {
         remove("temp.txt");
         printf("\nAccount not found or you don't have permission to remove it.\n");
+        printf("\033[39m");
         Succes(1, mainMenu, u);
         return;
     }
@@ -634,6 +649,7 @@ void transferOwner(struct User u) {
     int newUserExists = 0;  
 
     clearScreen();
+    printf("\033[95m");
     printf("\t\t====== Transfer Account Ownership =====\n\n");
     
     printf("Enter the account number to transfer: ");
@@ -641,6 +657,7 @@ void transferOwner(struct User u) {
     getchar();
 
     printf("Enter the new owner's name: ");
+    printf("\033[39m");
     scanf("%s", newOwnerName);
 
     pf = fopen(RECORDS, "r");
@@ -988,6 +1005,7 @@ void displayInterestInfo(struct Record r) {
     double interestRate = 0.0;
     double monthlyInterest = 0.0;
 
+    printf("\033[95m");
     printf("\n     ╔═══════════════════════════════════════╗\n");
     printf("     ║\t ########## Interest #########       ║\n");
     printf("     ╠═══════════════════════════════════════╣\n");
@@ -1038,4 +1056,5 @@ void displayInterestInfo(struct Record r) {
     }
     
     printf("     ╚═══════════════════════════════════════╝\n");
+    printf("\033[39m");
 }

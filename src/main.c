@@ -4,6 +4,7 @@ void mainMenu(struct User u)
 {
     int option;
     clearScreen();
+    printf("\033[95m");
       printf("              ╔═════════════════════════════════════════════════════╗\n");
     printf("              ║                                                     ║\n");
     printf("              ║                ======= ATM =======                  ║\n");
@@ -32,6 +33,7 @@ void mainMenu(struct User u)
     printf("              ║                                                     ║\n");
     printf("              ╚═════════════════════════════════════════════════════╝\n\n\n");
     printf("              ========> ");
+    printf("\033[39m");
     scanf("%d", &option);
 
     switch (option)
@@ -78,6 +80,7 @@ void initMenu(struct User *u)
     int r = 0;
     int option;
     clearScreen();
+    printf("\033[95m");
    printf("              ╔═════════════════════════════════════════════╗\n");
     printf("              ║             ======= ATM =======             ║\n");
     printf("              ║                                             ║\n");
@@ -92,6 +95,7 @@ void initMenu(struct User *u)
     printf("              ║                                             ║\n");
     printf("              ╚═════════════════════════════════════════════╝\n\n\n");
     printf("              ========> ");
+    printf("\033[39m");
     while (!r)
     {
         scanf("%d", &option);
